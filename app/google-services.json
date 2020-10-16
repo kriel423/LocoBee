@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "878332401930",
+    "firebase_url": "https://locobee-4825f.firebaseio.com",
+    "project_id": "locobee-4825f",
+    "storage_bucket": "locobee-4825f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:878332401930:android:eaa64b43cf4e22f5f7c2f3",
+        "android_client_info": {
+          "package_name": "com.example.locobee"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "878332401930-l6n2o3gj8bufc2oev8882ju9fau3o7j9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.locobee",
+            "certificate_hash": "988e450ed22effb29073d6394360b94019bf2444"
+          }
+        },
+        {
+          "client_id": "878332401930-lr7d63bhieooqtpgv5k6a2ie7dhvmhj4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxZaA9QJ7Y80EjyI7bmG1YfU1ErPRuzmM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "878332401930-lr7d63bhieooqtpgv5k6a2ie7dhvmhj4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
