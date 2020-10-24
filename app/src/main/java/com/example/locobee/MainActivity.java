@@ -89,8 +89,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
-
     private void openFileChooser(){
         Intent intent = new Intent();
         intent.setType("image/*");
