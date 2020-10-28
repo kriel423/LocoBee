@@ -36,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
     private Button mButtonUpload;
     private TextView mTextViewShowUploads;
     private EditText mEditTextFileName;
+    private EditText mEditTextFileDescription;
+    private EditText mEditTextQuantity;
+    private EditText mEditTextPrice;
     private ImageView mImageView;
     private ProgressBar mProgressBar;
     private Uri imageUri;
@@ -54,6 +57,9 @@ public class MainActivity extends AppCompatActivity {
         mButtonUpload = findViewById(R.id.button_upload);
         mTextViewShowUploads = findViewById(R.id.text_view_show_uploads);
         mEditTextFileName = findViewById(R.id.edit_text_file_name);
+        mEditTextFileDescription = findViewById(R.id.edit_text_file_description);
+        mEditTextQuantity = findViewById(R.id.edit_text_quantity);
+        mEditTextPrice = findViewById(R.id.edit_text_price);
         mImageView = findViewById(R.id.image_view);
         mProgressBar = findViewById(R.id.progress_bar);
 
@@ -84,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         mTextViewShowUploads.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                openImagesActivity();
             }
         });
     }
@@ -105,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         {
             imageUri = data.getData();
             Picasso.get().load(imageUri).into(mImageView);
-//            mImageView.setImageURI(imageUri); => done the native way, this will add an image from the device
+//            mImageView.setImageURI(imageUri);
         }
     }
 
@@ -136,6 +142,9 @@ public class MainActivity extends AppCompatActivity {
 
                             Toast.makeText(MainActivity.this, "Upload successful", Toast.LENGTH_LONG).show();
                             Upload upload = new Upload(mEditTextFileName.getText().toString().trim(),
+                                    mEditTextFileDescription.getText().toString().trim(),
+                                    mEditTextQuantity.getText().toString().trim(),
+                                    mEditTextPrice.getText().toString().trim(),
                                     taskSnapshot.getUploadSessionUri().toString());
                             String uploadId = mDatabaseRef.push().getKey();
                             mDatabaseRef.child(uploadId).setValue(upload);
@@ -157,5 +166,11 @@ public class MainActivity extends AppCompatActivity {
         }else{
             Toast.makeText(this, "No file selected", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void openImagesActivity()
+    {
+        Intent intent = new Intent(this, ImagesActivity.class);
+        startActivity(intent);
     }
 }
