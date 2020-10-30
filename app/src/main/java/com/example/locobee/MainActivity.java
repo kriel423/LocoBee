@@ -224,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-//            mImageView.setImageURI(imageUri);
+            mImageView.setImageURI(imageUri);
         }
     }
 
