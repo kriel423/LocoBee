@@ -1,8 +1,11 @@
 package com.example.locobee;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.firebase.database.Exclude;
 
-public class Upload {
+public class Upload implements Parcelable {
     private String mTitle;
     private String mDescription;
     private String mQuantity;
@@ -25,6 +28,27 @@ public class Upload {
         mPrice = price;
         mImageUrl = imageUrl;
     }
+
+    protected Upload(Parcel in) {
+        mTitle = in.readString();
+        mDescription = in.readString();
+        mQuantity = in.readString();
+        mPrice = in.readString();
+        mImageUrl = in.readString();
+        mKey = in.readString();
+    }
+
+    public static final Creator<Upload> CREATOR = new Creator<Upload>() {
+        @Override
+        public Upload createFromParcel(Parcel in) {
+            return new Upload(in);
+        }
+
+        @Override
+        public Upload[] newArray(int size) {
+            return new Upload[size];
+        }
+    };
 
     public String getmTitle()
     {
@@ -78,5 +102,20 @@ public class Upload {
     @Exclude
     public void setmKey(String mKey) {
         this.mKey = mKey;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mTitle);
+        dest.writeString(mDescription);
+        dest.writeString(mQuantity);
+        dest.writeString(mPrice);
+        dest.writeString(mImageUrl);
+        dest.writeString(mKey);
     }
 }

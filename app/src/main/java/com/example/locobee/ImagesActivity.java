@@ -10,9 +10,13 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -50,7 +54,6 @@ public class ImagesActivity extends AppCompatActivity implements ImageAdapter.On
 //        FirebaseUtil.
 
         mRecyclerView = findViewById(R.id.recyclerView);
-        mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         mProgressCircle = findViewById(R.id.progress_circle);
@@ -58,20 +61,19 @@ public class ImagesActivity extends AppCompatActivity implements ImageAdapter.On
         mUploads = new ArrayList<>();
 
         mAdapter = new ImageAdapter(ImagesActivity.this, mUploads);
-
         mRecyclerView.setAdapter(mAdapter);
-
         mAdapter.setOnItemClickListener(ImagesActivity.this);
 
+ //       mAdapter.setOnItemClickListener(ImagesActivity.this);
+        mStorage = FirebaseStorage.getInstance();
         mDatabaseRef = FirebaseDatabase.getInstance().getReference("uploads");
 
-        mStorage = FirebaseStorage.getInstance();
 
         mDBListener = mDatabaseRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                mUploads.clear();
+               mUploads.clear();
 
                 for(DataSnapshot postSnapshot : snapshot.getChildren())
                 {
@@ -80,7 +82,7 @@ public class ImagesActivity extends AppCompatActivity implements ImageAdapter.On
                     mUploads.add(upload);
                 }
 
-                mAdapter.notifyDataSetChanged();
+               mAdapter.notifyDataSetChanged();
 
                 mProgressCircle.setVisibility(View.INVISIBLE);
             }
@@ -100,7 +102,7 @@ public class ImagesActivity extends AppCompatActivity implements ImageAdapter.On
 
     @Override
     public void onAddToCartClick(int position) {
-        Toast.makeText(this, "Item added to cart at "+position, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Added item "+position+" to cart.", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -129,9 +131,44 @@ public class ImagesActivity extends AppCompatActivity implements ImageAdapter.On
         FirebaseUtil.detachListener();
     }
 
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        FirebaseUtil.openFbReference("uploads", this);
+//        mRecyclerView = findViewById(R.id.recyclerView);
+//        mRecyclerView.setHasFixedSize(true);
+//        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+//
+//        mProgressCircle = findViewById(R.id.progress_circle);
+//        mUploads = new ArrayList<>();
+//        mAdapter = new ImageAdapter(ImagesActivity.this, mUploads);
+//        mRecyclerView.setAdapter(mAdapter);
+//        FirebaseUtil.attachListener();
+//    }
+
+    public void showMenu()
+    {invalidateOptionsMenu();}
+
     @Override
-    protected void onResume() {
-        super.onResume();
-        FirebaseUtil.attachListener();
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.item_menu, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                mAdapter.getFilter().filter(newText);
+                return false;
+            }
+        });
+        return true;
+
     }
+
 }

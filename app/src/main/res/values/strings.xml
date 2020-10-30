@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">LocoBee</string>
+    <string name="string_protect">Let\'s do our part to protect each other \n Know what\'s out there before you leave.</string>
+    <string name="staysafe">#STAYSAFE</string>
+    <string name="welcome_to_locobee">Welcome to LocoBee</string>
 </resources>
