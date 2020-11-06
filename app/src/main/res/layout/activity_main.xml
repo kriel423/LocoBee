@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -19,8 +20,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/colorPrimary"
-            android:paddingTop="16dp"
             android:paddingStart="16dp"
+            android:paddingTop="16dp"
             android:paddingEnd="16dp"
             android:paddingBottom="70dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -76,35 +77,66 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/button_choose_image" />
 
+
             <TextView
                 android:id="@+id/textView2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="12dp"
                 android:padding="6dp"
-                android:text="Description:"
+                android:text="Category:"
                 android:textColor="@android:color/black"
                 android:textSize="20sp"
-                app:layout_constraintEnd_toStartOf="@+id/edit_text_file_name"
-                app:layout_constraintHorizontal_bias="0.4"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView" />
-
-            <EditText
-                android:id="@+id/edit_text_file_description"
-                android:layout_width="200dp"
-                android:layout_height="40dp"
-                android:layout_marginTop="8dp"
-                android:hint="Enter description"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/edit_text_file_name" />
 
+            <RadioGroup
+                android:id="@+id/radioGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView2">
+
+                <RadioButton
+                    android:id="@+id/essential_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Essential"
+                    android:textSize="20sp" />
+
+                <RadioButton
+                    android:id="@+id/confection_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Confectionery"
+                    android:textSize="20sp" />
+
+                <RadioButton
+                    android:id="@+id/toiletries_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Toiletries"
+                    android:textSize="20sp" />
+
+                <RadioButton
+                    android:id="@+id/protection_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Protection"
+                    android:textSize="20sp" />
+            </RadioGroup>
 
             <TextView
                 android:id="@+id/textView3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="9dp"
                 android:padding="6dp"
                 android:text="Quantity:"
                 android:textColor="@android:color/black"
@@ -112,16 +144,16 @@
                 app:layout_constraintEnd_toStartOf="@+id/edit_text_file_name"
                 app:layout_constraintHorizontal_bias="0.274"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView2" />
+                app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
 
             <EditText
                 android:id="@+id/edit_text_quantity"
                 android:layout_width="200dp"
                 android:layout_height="40dp"
-                android:layout_marginTop="8dp"
-                android:hint="Enter description"
+                android:hint="Enter Quantity"
+                android:inputType="number"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/edit_text_file_description" />
+                app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -142,15 +174,16 @@
                 android:layout_height="40dp"
                 android:layout_marginTop="8dp"
                 android:hint="Enter price:"
+                android:inputType="number"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/edit_text_quantity" />
-
 
             <ProgressBar
                 android:id="@+id/progress_bar"
                 style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:layout_marginBottom="10dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/edit_text_price"

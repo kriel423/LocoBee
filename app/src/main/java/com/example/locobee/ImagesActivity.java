@@ -19,7 +19,10 @@ import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -46,28 +49,31 @@ public class ImagesActivity extends AppCompatActivity implements ImageAdapter.On
     private ValueEventListener mDBListener;
     private List<Upload> mUploads;
 
+    private String selectedFilter = "all";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_images);
 
 //        FirebaseUtil.
+//        mAdapter.setOnItemClickListener(ImagesActivity.this);
 
+        //FirebaseUtil.openFbReference("uploads", this);
         mRecyclerView = findViewById(R.id.recyclerView);
+        mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         mProgressCircle = findViewById(R.id.progress_circle);
-
         mUploads = new ArrayList<>();
-
         mAdapter = new ImageAdapter(ImagesActivity.this, mUploads);
         mRecyclerView.setAdapter(mAdapter);
-        mAdapter.setOnItemClickListener(ImagesActivity.this);
 
  //       mAdapter.setOnItemClickListener(ImagesActivity.this);
         mStorage = FirebaseStorage.getInstance();
         mDatabaseRef = FirebaseDatabase.getInstance().getReference("uploads");
 
+        initSearchViewItems();
 
         mDBListener = mDatabaseRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -125,24 +131,16 @@ public class ImagesActivity extends AppCompatActivity implements ImageAdapter.On
         mDatabaseRef.removeEventListener(mDBListener);
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        FirebaseUtil.detachListener();
-    }
-
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        FirebaseUtil.detachListener();
+//    }
+//
 //    @Override
 //    protected void onResume() {
 //        super.onResume();
-//        FirebaseUtil.openFbReference("uploads", this);
-//        mRecyclerView = findViewById(R.id.recyclerView);
-//        mRecyclerView.setHasFixedSize(true);
-//        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 //
-//        mProgressCircle = findViewById(R.id.progress_circle);
-//        mUploads = new ArrayList<>();
-//        mAdapter = new ImageAdapter(ImagesActivity.this, mUploads);
-//        mRecyclerView.setAdapter(mAdapter);
 //        FirebaseUtil.attachListener();
 //    }
 
@@ -153,8 +151,32 @@ public class ImagesActivity extends AppCompatActivity implements ImageAdapter.On
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.item_menu, menu);
-        MenuItem searchItem = menu.findItem(R.id.action_search);
-        SearchView searchView = (SearchView) searchItem.getActionView();
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId())
+        {
+            case R.id.logout_menu:
+                AuthUI.getInstance()
+                        .signOut(this)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            public void onComplete(@NonNull Task<Void> task) {
+                                Log.d("Logout", "User logged out");
+                                FirebaseUtil.attachListener();
+                            }
+                        });
+                FirebaseUtil.detachListener();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void initSearchViewItems()
+    {
+        SearchView searchView = findViewById(R.id.search_view_items);
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -163,12 +185,61 @@ public class ImagesActivity extends AppCompatActivity implements ImageAdapter.On
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                mAdapter.getFilter().filter(newText);
+                List<Upload> uploads = new ArrayList<>();
+                for(Upload uploadItem : mUploads)
+                {
+                    if(uploadItem.getmCategory().toLowerCase().contains(newText.toLowerCase()))
+                    {
+                        uploads.add(uploadItem);
+                    }
+                }
+
+                ImageAdapter imageAdapter = new ImageAdapter(getApplicationContext(), uploads);
+                mRecyclerView.setAdapter(imageAdapter);
                 return false;
             }
         });
-        return true;
+    }
 
+    private void filteredList(String status)
+    {
+        selectedFilter = status;
+
+        ArrayList<Upload> filteredItemList = new ArrayList<Upload>();
+
+        for(Upload upload : mUploads)
+        {
+            if(upload.getmCategory().toLowerCase().contains(status))
+            {
+                filteredItemList.add(upload);
+            }
+        }
+
+        ImageAdapter imageAdapter = new ImageAdapter(getApplicationContext(), filteredItemList);
+        mRecyclerView.setAdapter(imageAdapter);
+    }
+
+    public void allFilterTapped(View view)
+    {
+        selectedFilter = "all";
+        ImageAdapter imageAdapter = new ImageAdapter(getApplicationContext(), mUploads);
+        mRecyclerView.setAdapter(imageAdapter);
+    }
+
+    public void essentialFilterTapped(View view) {
+        filteredList("essential");
+    }
+
+    public void confectioneryFilterTapped(View view) {
+        filteredList("confectionery");
+    }
+
+    public void toiletriesFilterTapped(View view) {
+        filteredList("toiletries");
+    }
+
+    public void protectionFilterTapped(View view) {
+        filteredList("protection");
     }
 
 }

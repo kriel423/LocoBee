@@ -1,6 +1,7 @@
 package com.example.locobee;
 
 import android.app.Activity;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -31,14 +32,14 @@ public class FirebaseUtil {
 
     public static FirebaseAuth.AuthStateListener mAuthListener;
     public static ArrayList<Upload> mUploads;
-    private static ImagesActivity caller;
+    private static MenuSelectActivity caller;
     public static final int RC_SIGN_IN = 123;
 
     public static boolean isAdmin;
 
     private FirebaseUtil(){}
 
-    public static void openFbReference(String ref, final ImagesActivity callerActivity)
+    public static void openFbReference(String ref, final MenuSelectActivity callerActivity)
     {
         if(mFirebaseUtil == null)
         {
@@ -59,17 +60,17 @@ public class FirebaseUtil {
                         String userId = firebaseAuth.getUid();
                         checkAdmin(userId);
                     }
-                    Toast.makeText(callerActivity.getBaseContext(), "Welocome back", Toast.LENGTH_LONG).show();
+
                 }
             };
-            connectStorage();
+   //         connectStorage();
         }
 
         mUploads = new ArrayList<Upload>();
         mDatabaseReference = mFirebaseDatabase.getReference().child(ref);
     }
 
-    public static void signIn()
+    private static void signIn()
     {
         // Choose authentication providers
         List<AuthUI.IdpConfig> providers = Arrays.asList(
@@ -83,6 +84,8 @@ public class FirebaseUtil {
                         .setAvailableProviders(providers)
                         .build(),
                 RC_SIGN_IN);
+
+        Toast.makeText(caller.getBaseContext(), "Welcome back", Toast.LENGTH_LONG).show();
     }
 
     private static void checkAdmin(String userId) {
@@ -93,6 +96,7 @@ public class FirebaseUtil {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 FirebaseUtil.isAdmin = true;
+                Log.d("Admin", "Administrator logged in");
                 caller.showMenu();
             }
 
@@ -129,9 +133,9 @@ public class FirebaseUtil {
         mFirebaseAuth.removeAuthStateListener(mAuthListener);
     }
 
-    private static void connectStorage() {
-        mStorage = FirebaseStorage.getInstance();
-        mStorageRef = mStorage.getReference().child("market_items");
-    }
+//    private static void connectStorage() {
+//        mStorage = FirebaseStorage.getInstance();
+//        mStorageRef = mStorage.getReference().child("market_items");
+//    }
 
 }

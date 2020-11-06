@@ -7,7 +7,7 @@ import com.google.firebase.database.Exclude;
 
 public class Upload implements Parcelable {
     private String mTitle;
-    private String mDescription;
+    private String mCategory;
     private String mQuantity;
     private String mPrice;
     private String mImageUrl;
@@ -17,13 +17,13 @@ public class Upload implements Parcelable {
         //empty constructor needed
     }
 
-    public Upload(String title, String description, String quantity, String price, String imageUrl){
+    public Upload(String title, String category, String quantity, String price, String imageUrl){
         if(title.trim().equals(""))
         {
             title = "No Name";
         }
         mTitle = title;
-        mDescription = description;
+        mCategory = category;
         mQuantity = quantity;
         mPrice = price;
         mImageUrl = imageUrl;
@@ -31,7 +31,7 @@ public class Upload implements Parcelable {
 
     protected Upload(Parcel in) {
         mTitle = in.readString();
-        mDescription = in.readString();
+        mCategory = in.readString();
         mQuantity = in.readString();
         mPrice = in.readString();
         mImageUrl = in.readString();
@@ -60,12 +60,12 @@ public class Upload implements Parcelable {
         mTitle = name;
     }
 
-    public String getmDescription() {
-        return mDescription;
+    public String getmCategory() {
+        return mCategory;
     }
 
-    public void setmDescription(String mDescription) {
-        this.mDescription = mDescription;
+    public void setmCategory(String mCategory) {
+        this.mCategory = mCategory;
     }
 
     public String getmQuantity() {
@@ -112,7 +112,7 @@ public class Upload implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mTitle);
-        dest.writeString(mDescription);
+        dest.writeString(mCategory);
         dest.writeString(mQuantity);
         dest.writeString(mPrice);
         dest.writeString(mImageUrl);

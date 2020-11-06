@@ -4,33 +4,25 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.Manifest;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.SearchView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
@@ -43,62 +35,63 @@ import com.squareup.picasso.Picasso;
 public class MainActivity extends AppCompatActivity {
 
     private static final int PICK_IMAGE_REQUEST = 1;
-    private static final int PERMISSION_CODE = 1000;
-    private static final int IMAGE_CAPTURE_CODE = 1001;
-    public static FirebaseAuth mFirebaseAuth;
-    public static FirebaseAuth.AuthStateListener mAuthListener;
+    public static final int REQUEST_CODE = 0;
     private Button mButtonChooseImage;
     private Button mButtonUpload;
     private TextView mTextViewShowUploads;
+    private TextView mEditTextCategory;
     private EditText mEditTextFileName;
-    private EditText mEditTextFileDescription;
     private EditText mEditTextQuantity;
     private EditText mEditTextPrice;
+    private RadioButton mRadioEssential;
+    private RadioButton mRadioToiletries;
+    private RadioButton mRadioConfectionery;
+    private RadioButton mRadioProtection;
     private ImageView mImageView;
     private ProgressBar mProgressBar;
     private Uri imageUri;
     private Upload mUpload;
-
-//    private Button decreaseButton;
-//    private TextView quantity;
 
     private StorageReference mStorageRef;
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference mDatabaseRef;
 
     private StorageTask mUploadTask;
+    private Upload mUploads;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-//        decreaseButton = findViewById(R.id.decrease_quantity);
-
-
         mButtonChooseImage = findViewById(R.id.button_choose_image);
         mButtonUpload = findViewById(R.id.button_upload);
         mTextViewShowUploads = findViewById(R.id.text_view_show_uploads);
         mEditTextFileName = findViewById(R.id.edit_text_file_name);
-        mEditTextFileDescription = findViewById(R.id.edit_text_file_description);
         mEditTextQuantity = findViewById(R.id.edit_text_quantity);
         mEditTextPrice = findViewById(R.id.edit_text_price);
+        mRadioEssential = findViewById(R.id.essential_button);
+        mRadioToiletries = findViewById(R.id.toiletries_button);
+        mRadioConfectionery = findViewById(R.id.confection_button);
+        mRadioProtection = findViewById(R.id.protection_button);
         mImageView = findViewById(R.id.image_view);
         mProgressBar = findViewById(R.id.progress_bar);
-
-//        quantity = findViewById(R.id.text_view_quantity);
-
-//        quantity.setText(mEditTextQuantity.getText().toString());
 
         mStorageRef = FirebaseStorage.getInstance().getReference("uploads");
         mDatabaseRef = FirebaseDatabase.getInstance().getReference("uploads");
         mFirebaseDatabase = FirebaseUtil.mFirebaseDatabase;
 
         mButtonChooseImage.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
-                openFileChooser();
+                if(mUploadTask != null && mUploadTask.isInProgress())
+                {
+                    Toast.makeText(MainActivity.this, "Upload in progress", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    openFileChooser();
+                }
             }
         });
 
@@ -116,89 +109,33 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-
         mTextViewShowUploads.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openImagesActivity();
             }
         });
-
-//        decreaseButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                if(Integer.parseInt(quantity.getText().toString()) > 0)
-//                {
-//                    quantity.setText(Integer.parseInt(quantity.getText().toString()) - 1);
-//                }
-//                else if(Integer.parseInt(quantity.getText().toString()) == 0)
-//                {
-//                    quantity.setText("Out");
-//                }
-//            }
-//        });
-    }
-
-
-    private void openFileChooser(){
-//        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//        if(intent.resolveActivity(getPackageManager()) != null)
-//        {
-//            intent.setType("image/*");
-//            intent.setAction(Intent.ACTION_GET_CONTENT);
-//            startActivityForResult(intent, PICK_IMAGE_REQUEST);
-//        }
-
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-        {
-            if(checkSelfPermission(Manifest.permission.CAMERA) ==
-                    PackageManager.PERMISSION_DENIED ||
-                checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
-                    PackageManager.PERMISSION_DENIED)
-            {
-                String[] permission = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-                requestPermissions(permission, PERMISSION_CODE);
-            }
-            else
-            {
-                openCamera();
-            }
-        }
-        else
-        {
-            openCamera();
-        }
-    }
-
-    public void openCamera()
-    {
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.Images.Media.TITLE, "Image");
-        values.put(MediaStore.Images.Media.DESCRIPTION, "Camera Image");
-        imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-
-        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-        startActivityForResult(cameraIntent, IMAGE_CAPTURE_CODE);
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode)
+    protected void onPause() {
+        super.onPause();
+        FirebaseUtil.detachListener();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        FirebaseUtil.attachListener();
+    }
+
+    private void openFileChooser(){
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if(intent.resolveActivity(getPackageManager()) != null)
         {
-            case PERMISSION_CODE:
-            {
-                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                {
-                    openCamera();
-                }
-                else
-                {
-                    Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
-                }
-            }
+            intent.setType("image/*");
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            startActivityForResult(intent, PICK_IMAGE_REQUEST);
         }
     }
 
@@ -207,24 +144,15 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
-         && data != null && data.getData() != null)
+                && data != null && data.getData() != null)
         {
             imageUri = data.getData();
-            final StorageReference ref = FirebaseUtil.mStorageRef.child(imageUri.getLastPathSegment());
-            ref.putFile(imageUri).addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>(){
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    String url = ref.getDownloadUrl().toString();
-                    String pictureName = taskSnapshot.getStorage().getPath();
-                    mUpload.setImageUrl(url);
-                    mUpload.setName(pictureName);
-                    Log.d("Url", url);
-                    Log.d("Image", pictureName);
-                    Picasso.get().load(imageUri).into(mImageView);
-                }
-            });
 
-            mImageView.setImageURI(imageUri);
+            Picasso.get()
+                    .load(imageUri)
+                    .into(mImageView);
+
+                      mImageView.setImageURI(imageUri);
         }
     }
 
@@ -239,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
         if(imageUri != null)
         {
             StorageReference fileReference = mStorageRef.child(System.currentTimeMillis()
-            + "." + getFileExtension(imageUri));
+                    + "." + getFileExtension(imageUri));
 
             mUploadTask = fileReference.putFile(imageUri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -254,13 +182,63 @@ public class MainActivity extends AppCompatActivity {
                             }, 500);
 
                             Toast.makeText(MainActivity.this, "Upload successful", Toast.LENGTH_LONG).show();
-                            Upload upload = new Upload(mEditTextFileName.getText().toString().trim(),
-                                    mEditTextFileDescription.getText().toString().trim(),
-                                    mEditTextQuantity.getText().toString().trim(),
-                                    mEditTextPrice.getText().toString().trim(),
-                                    taskSnapshot.getUploadSessionUri().toString());
-                            String uploadId = mDatabaseRef.push().getKey();
-                            mDatabaseRef.child(uploadId).setValue(upload);
+
+                            if(mRadioEssential.isChecked())
+                            {
+                                mEditTextCategory = mRadioEssential;
+                                mUploads = new Upload(mEditTextFileName.getText().toString().trim(),
+                                        mEditTextCategory.getText().toString().trim(),
+                                        mEditTextQuantity.getText().toString().trim(),
+                                        mEditTextPrice.getText().toString().trim(),
+                                        taskSnapshot.getMetadata().getReference().getDownloadUrl().toString());
+                                String uploadId = mDatabaseRef.push().getKey();
+                                mDatabaseRef.child(uploadId).setValue(mUploads);
+                            }
+                            else if(mRadioConfectionery.isChecked())
+                            {
+                                mEditTextCategory = mRadioConfectionery;
+                                Upload upload = new Upload(mEditTextFileName.getText().toString().trim(),
+                                        mEditTextCategory.getText().toString().trim(),
+                                        mEditTextQuantity.getText().toString().trim(),
+                                        mEditTextPrice.getText().toString().trim(),
+                                        taskSnapshot.getMetadata().getReference().getDownloadUrl().toString());
+                                String uploadId = mDatabaseRef.push().getKey();
+                                mDatabaseRef.child(uploadId).setValue(upload);
+                            }
+                            else if(mRadioProtection.isChecked())
+                            {
+                                mEditTextCategory = mRadioProtection;
+                                Upload upload = new Upload(mEditTextFileName.getText().toString().trim(),
+                                        mEditTextCategory.getText().toString().trim(),
+                                        mEditTextQuantity.getText().toString().trim(),
+                                        mEditTextPrice.getText().toString().trim(),
+                                        taskSnapshot.getMetadata().getReference().getDownloadUrl().toString());
+                                String uploadId = mDatabaseRef.push().getKey();
+                                mDatabaseRef.child(uploadId).setValue(upload);
+                            }
+                            else if(mRadioToiletries.isChecked())
+                            {
+                                mEditTextCategory = mRadioToiletries;
+                                Upload upload = new Upload(mEditTextFileName.getText().toString().trim(),
+                                        mEditTextCategory.getText().toString().trim(),
+                                        mEditTextQuantity.getText().toString().trim(),
+                                        mEditTextPrice.getText().toString().trim(),
+                                        taskSnapshot.getMetadata().getReference().getDownloadUrl().toString());
+                                String uploadId = mDatabaseRef.push().getKey();
+                                mDatabaseRef.child(uploadId).setValue(upload);
+                            }
+                            else
+                            {
+                                mEditTextCategory.setText("");
+                                Upload upload = new Upload(mEditTextFileName.getText().toString().trim(),
+                                        mEditTextCategory.getText().toString().trim(),
+                                        mEditTextQuantity.getText().toString().trim(),
+                                        mEditTextPrice.getText().toString().trim(),
+                                        taskSnapshot.getMetadata().getReference().getDownloadUrl().toString());
+                                String uploadId = mDatabaseRef.push().getKey();
+                                mDatabaseRef.child(uploadId).setValue(upload);
+                            }
+
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -276,7 +254,9 @@ public class MainActivity extends AppCompatActivity {
                             mProgressBar.setProgress((int) progress);
                         }
                     });
-        }else{
+        }
+        else
+        {
             Toast.makeText(this, "No file selected", Toast.LENGTH_SHORT).show();
         }
     }
@@ -287,6 +267,9 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
 
 }
